@@ -1,0 +1,59 @@
+
+#top {
+    width: 375px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#heading {
+    margin: 0px;
+    font-size: 1.8em;
+}
+
+#setting-area .setting-section {
+    box-shadow: 0px 0px 1px;
+    padding: 5px 10px;
+}
+#setting-area .setting-section + .setting-section {
+    margin-top: 1px;
+}
+
+#setting-area ul {
+    list-style: none;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-left: 20px;
+}
+
+#setting-area label,
+#setting-area input[type='checkbox'],
+#setting-area input[type='radio'] {
+    cursor: pointer;
+}
+
+#setting-area label {
+    display: inline-block;
+    padding: 2px;
+}
+
+#message {
+    resize: none;
+    padding: 0px;
+    border: none;
+    width: 100%;
+    margin-top: 5px;
+}
+#message.warning {
+    color: red;
+}
+
+#save-button,
+#reset-button {
+    user-select: none;
+}
+
+#link-to-sharing-config:not(.showing) {
+    display: none;
+}

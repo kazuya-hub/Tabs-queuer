@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div id="top">
+        <!-- #tab-item内のラジオボタンのvalue属性の値と#tab-contents内のdiv要素のidを対応させる -->
+        <div id="tab-items-area">
+            <label class="tab-item">
+                <input type="radio" name="tabs" value="queues" checked>
+                キュー
+            </label>
+            <label class="tab-item">
+                <input type="radio" name="tabs" value="setting">
+                設定
+            </label>
+        </div>
+        <div id="tab-contents-area">
+            <div id="queues" class="tab-content-item">
+                <iframe src="../queuesUI/queuesUI.html?content=popup" width="500px" height="500px"
+                    frameborder="0"></iframe>
+            </div>
+            <div id="setting" class="tab-content-item">
+                <iframe src="../configUI/configUI.html?target=window" width="500px" height="500px"
+                    frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+    <script src="./popup.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./queuesUI.css">
+</head>
+
+<body>
+
+    <div id="all-saved-queues-area" style="display: none;">
+        <span>保存されたキュー</span>
+        <div id="saved-queues-list-container"></div>
+    </div>
+
+    <div id="all-window-queues-area" style="display: none;">
+        <span>ウィンドウのキュー</span>
+        <div id="window-queues-list-container"></div>
+    </div>
+
+    <div id="current-window-queue-area" style="display: none;">
+        <div>
+            このウィンドウのキュー
+            <button id="save-button" title="キューを保存する">保存</button>
+            <button id="clear-button" title="キューを削除する">削除</button>
+            <a id="link-to-window-queues-list" href="" target="_blank">ウィンドウのキューの一覧を開く</a>
+        </div>
+        <div id="current-window-queue-items-list-container"></div>
+    </div>
+
+    <!-- テンプレート -->
+    <div id="templates" style="display: none;">
+        <!-- キューの一覧表示のキュー1個分 -->
+        <div id="queues-list-item-template">
+            <div class="queue display-flex">
+                <span class="lock_icon only-with-saved-queue"></span>
+                <span class="queue-info flex-grow-1 width-0px display-flex">
+                    <span class="queue-label"></span>
+                    <span class="items-count"></span>
+                    <span class="favicons-area flex-grow-1 width-0px display-flex"></span>
+                </span>
+                <span class="dropdown-menu-root">
+                    <img class="dropdown-menu-button" title="メニュー" src="./icons/dropdown_menu_icon.svg">
+                </span>
+            </div>
+        </div>
+        <!-- キューのアイテム -->
+        <div id="queue-item-list-template">
+            <div class="queue-item display-flex">
+                <span class="lock_icon"></span>
+                <span class="page-info flex-grow-1 width-0px display-flex">
+                    <img class="favicon"></img>
+                    <span class="title flex-grow-1 width-0px"></span>
+                </span>
+                <img class="remove-button" title="削除する" src="./icons/remove_button.svg">
+            </div>
+        </div>
+        <!-- 保存されたキューのメニュー -->
+        <div id="saved-queue-dropdown-menu-content-template">
+            <ul class="dropdown-menu-content">
+                <li data-action="deploy" class="dropdown-menu-item">
+                    キューを復元する
+                </li>
+                <li data-action="rename" class="dropdown-menu-item">
+                    キューの名前を変更する
+                </li>
+                <li data-action="remove" class="dropdown-menu-item">
+                    キューを削除する
+                </li>
+            </ul>
+        </div>
+        <!-- ウィンドウのキューのメニュー -->
+        <div id="window-queue-dropdown-menu-content-template">
+            <ul class="dropdown-menu-content">
+                <li data-action="go_to_window" class="dropdown-menu-item">
+                    ウィンドウに移動
+                </li>
+                <li data-action="save" class="dropdown-menu-item">
+                    キューを保存する
+                </li>
+                <li data-action="remove" class="dropdown-menu-item">
+                    キューを削除する
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script type="module" src="./queuesUI.js"></script>
+</body>
+
+</html>

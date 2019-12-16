@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <script type="module" src="./background.js"></script>
+    <!-- 
+        chrome.runtime.sendMessageメソッドおよびchrome.runtime.connectメソッドは
+        同じフレーム内のリスナーにメッセージを送信できないので、iframe内でリスナーを追加する
+     -->
+    <iframe src="./queuesTransactionManager/queuesTransactionManager.html"></iframe>
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>設定</title>
+    <link rel="stylesheet" href="./configUI.css">
+</head>
+
+<body>
+    <div id="top">
+        <h1 id="heading">設定</h1>
+        <form id="setting-area">
+            <div class="setting-section">
+                <label>基本的な設定</label>
+                <ul>
+                    <li>
+                        <label>
+                            <input type="checkbox" name="ignore_duplicates">
+                            キュー内でURLが重複する追加を無視する
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            タブをしまう時の位置:
+                            キューの
+                            <select name="position_to_enqueue">
+                                <option value="last">
+                                    最後尾
+                                </option>
+                                <option value="top">
+                                    先頭
+                                </option>
+                            </select>
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            タブを手動で取り出す時の位置:
+                            <select name="position_to_dequeue">
+                                <option value="rightmost">
+                                    一番右
+                                </option>
+                                <option value="rightnext">
+                                    アクティブなタブの右隣
+                                </option>
+                            </select>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="setting-section">
+                <label>右クリックメニュー</label>
+                <ul>
+                    <li>
+                        <label>
+                            <input type="checkbox" name="tab_closing_after_send">
+                            タブをキューに送る時、タブを閉じる
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="setting-section">
+                <label title="ウィンドウ内のタブが多くなりすぎた時に、自動でキューに送ります">
+                    <input type="checkbox" name="upper_limit_available">
+                    タブの自動格納を有効にする
+                </label>
+                <ul>
+                    <li>
+                        <label title="ウィンドウ内のタブの数がこれより大きくなると自動格納されます">
+                            タブ数の上限:
+                            <input type="number" name="upper_limit_value" min="2" max="100">
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            自動格納の対象:
+                            <select name="target_tab_to_auto_store">
+                                <option value="rightmost">一番右の</option>
+                                <option value="latest">最後に開いた</option>
+                            </select>
+                            タブ
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" name="ignore_loading_tabs">
+                            ロード中のタブは格納しない
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" name="ignore_active_tabs">
+                            アクティブなタブは格納しない
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="setting-section">
+                <label title="ウィンドウ内のタブが少なくなってきたら、自動でキューのアイテムを取り出します">
+                    <input type="checkbox" name="lower_limit_available">
+                    タブの自動展開を有効にする
+                </label>
+                <ul>
+                    <li>
+                        <label title="ウィンドウ内のタブの数がこれより小さくなると自動展開されます">
+                            タブ数の下限:
+                            <input type="number" name="lower_limit_value" min="2" max="100">
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            タブを自動展開する位置:
+                            <select name="position_to_auto_restore">
+                                <option value="unset">
+                                    手動で取り出す時と同じ
+                                </option>
+                                <option value="rightmost">
+                                    一番右
+                                </option>
+                                <option value="rightnext">
+                                    アクティブなタブの右隣
+                                </option>
+                            </select>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+        </form>
+        <textarea id="message" rows="3" disabled placeholder="メッセージがここに表示されます"></textarea>
+        <button id="save-button">保存</button>
+        <button id="reset-button">リセット</button>
+        <a id="link-to-sharing-config" href="" target="_blank">共有設定を編集する</a>
+    </div>
+    <script type="module" src="./configUI.js"></script>
+</body>
+
+</html>
