@@ -407,8 +407,8 @@ function deepEqual(obj1, obj2) {
 
 /**
  * @typedef {Object} WindowConfigUpdate
- * @property {Config | void} oldValue 設定がない場合はundefined
- * @property {Config | void} newValue 設定がない場合はundefined
+ * @property {Config} oldValue
+ * @property {Config} newValue
  */
 
 /**
@@ -443,8 +443,8 @@ export function onWindowConfigUpdated(callback) {
             const found_newer = findConfig(newValue, {
                 windowId: windowId
             });
-            const older_window_config = found_older || undefined;
-            const newer_window_queue = found_newer || undefined;
+            const older_window_config = found_older || {};
+            const newer_window_queue = found_newer || {};
             if (deepEqual(older_window_config, newer_window_queue) === false) {
                 callback(windowId, {
                     oldValue: older_window_config,
