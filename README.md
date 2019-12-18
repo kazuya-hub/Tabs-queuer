@@ -8,6 +8,8 @@
 
 - [src](./src)  
     拡張機能のルートディレクトリ
+- [CHANGELOG.md](./CHANGELOG.md)  
+    更新の履歴
 
 ## この拡張機能の概要
 
