@@ -439,17 +439,17 @@ document.addEventListener('click', event => {
             break;
         case 'saved-queues':
             document.body.setAttribute('data-content', 'saved-queues');
-            document.title = '保存されたキューの一覧';
+            document.title = '保存されたキューの一覧 - Tabs queuer';
             placeSavedQueuesList();
             break;
         case 'window-queues':
             document.body.setAttribute('data-content', 'window-queues');
-            document.title = 'ウィンドウのキューの一覧';
+            document.title = 'ウィンドウのキューの一覧 - Tabs queuer';
             placeWindowQueuesList();
             break;
         case 'current-window-queue-items':
             document.body.setAttribute('data-content', 'current-window-queue-items');
-            document.title = 'このウィンドウのキュー';
+            document.title = 'このウィンドウのキュー - Tabs queuer';
             placeCurrentWindowQueueItemsList();
             break;
         default:
