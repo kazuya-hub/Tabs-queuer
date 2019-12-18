@@ -333,3 +333,124 @@ export function initConfig() {
     ]);
 }
 
+
+/**
+ * @typedef {Object} SharingConfigUpdate
+ * @property {Config} oldValue
+ * @property {Config} newValue
+ */
+
+/**
+ * @callback SharingConfigUpdateCallback
+ * @param {SharingConfigUpdate} changes
+ */
+
+/**
+ * 共有設定が更新された時のイベント
+ * @param {SharingConfigUpdateCallback} callback
+ */
+export function onSharingConfigUpdated(callback) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        const sharing_config_changes = changes[CONFIG_TARGET.LOCAL.SHARING_CONFIG];
+        if (sharing_config_changes) {
+            callback(sharing_config_changes);
+        }
+    });
+}
+
+/**
+ * @typedef {Object} WindowConfigsAreaUpdate
+ * @property {Array.<Config>} oldValue
+ * @property {Array.<Config>} newValue
+ */
+
+/**
+ * @callback WidnowConfigsAreaUpdateCallback
+ * @param {WindowConfigsAreaUpdate} changes
+ */
+
+/**
+ * ストレージ上のウィンドウの設定の領域が更新された時のイベント
+ * @param {WidnowConfigsAreaUpdateCallback} callback
+ */
+export function onWindowConfigsAreaUpdated(callback) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        const window_configs_changes = changes[CONFIG_TARGET.LOCAL.WINDOW_CONFIGS];
+        if (window_configs_changes) {
+            callback(window_configs_changes);
+        }
+    });
+}
+
+function objectSort(object) {
+    /**
+     * ソートされたキーの配列
+     */
+    const keys = Object.keys(object).sort();
+    const map = {};
+    keys.forEach(key => {
+        const value = object[key];
+        if ((typeof value) === "object") {
+            map[key] = objectSort(value);
+        } else {
+            map[key] = value;
+        }
+    });
+    return map;
+}
+
+function deepEqual(obj1, obj2) {
+    const obj1Str = JSON.stringify(objectSort(obj1));
+    const obj2Str = JSON.stringify(objectSort(obj2));
+    return obj1Str === obj2Str;
+}
+
+/**
+ * @typedef {Object} WindowConfigUpdate
+ * @property {Config | void} oldValue 設定がない場合はundefined
+ * @property {Config | void} newValue 設定がない場合はundefined
+ */
+
+/**
+ * @callback WidnowConfigUpdateCallback
+ * @param {number} windowId
+ * @param {WindowConfigUpdate} change
+ */
+
+/**
+ * ウィンドウのキューが更新された時のイベント
+ * @param {WidnowConfigUpdateCallback} callback 
+ */
+export function onWindowConfigUpdated(callback) {
+    onWindowConfigsAreaUpdated(changes => {
+        /** @type {Array.<Config>} */
+        const oldValue = changes.oldValue || new Array();
+        /** @type {Array.<Config>} */
+        const newValue = changes.newValue || new Array();
+        const oldValue_windowId_list = oldValue.map(config => config.windowId);
+        const newValue_windowId_list = newValue.map(config => config.windowId);
+        /**
+         * oldValueかnewValueのどちらかに存在した全てのウィンドウ設定のウィンドウIDのセット
+         * @type {Set.<number>}
+         */
+        const all_windowId_list = new Set(
+            oldValue_windowId_list.concat(newValue_windowId_list)
+        );
+        all_windowId_list.forEach(windowId => {
+            const found_older = findConfig(oldValue, {
+                windowId: windowId
+            });
+            const found_newer = findConfig(newValue, {
+                windowId: windowId
+            });
+            const older_window_config = found_older || undefined;
+            const newer_window_queue = found_newer || undefined;
+            if (deepEqual(older_window_config, newer_window_queue) === false) {
+                callback(windowId, {
+                    oldValue: older_window_config,
+                    newValue: newer_window_queue
+                });
+            }
+        });
+    });
+}
