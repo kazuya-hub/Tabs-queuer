@@ -74,15 +74,11 @@ body[data-content="popup"] #current-window-queue-items-list-container {
     padding-right: 8px;
     width: 100%;
     font-family: monospace;
-    font-size: 12px;
-    font-weight: 100;
     -webkit-user-select: none;
     -moz-user-select: none;
 }
 .queue:hover,
 .queue-item:hover {
-    /* border-color: currentColor;
-    border-style: solid; */
     background-color: rgb(255, 255, 200);
 }
 
@@ -118,12 +114,12 @@ body[data-content="popup"] #current-window-queue-items-list-container {
 
 .items-count {
     display: inline-block;
-    width: 5em;
+    width: 6em;
     white-space: nowrap;
     text-align: right;
 }
-.queue .items-count {
-    margin-left: 10px;
+.queue-label + .items-count {
+    margin-left: 5px;
 }
 
 .queue .favicons-area {
