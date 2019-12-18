@@ -433,10 +433,10 @@ export function onWindowConfigUpdated(callback) {
          * oldValueかnewValueのどちらかに存在した全てのウィンドウ設定のウィンドウIDのセット
          * @type {Set.<number>}
          */
-        const all_windowId_list = new Set(
+        const all_windowId_set = new Set(
             oldValue_windowId_list.concat(newValue_windowId_list)
         );
-        all_windowId_list.forEach(windowId => {
+        all_windowId_set.forEach(windowId => {
             const found_older = findConfig(oldValue, {
                 windowId: windowId
             });
@@ -444,11 +444,11 @@ export function onWindowConfigUpdated(callback) {
                 windowId: windowId
             });
             const older_window_config = found_older || {};
-            const newer_window_queue = found_newer || {};
-            if (deepEqual(older_window_config, newer_window_queue) === false) {
+            const newer_window_config = found_newer || {};
+            if (deepEqual(older_window_config, newer_window_config) === false) {
                 callback(windowId, {
                     oldValue: older_window_config,
-                    newValue: newer_window_queue
+                    newValue: newer_window_config
                 });
             }
         });
