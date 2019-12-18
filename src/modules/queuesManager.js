@@ -395,7 +395,7 @@ export function setWindowQueue(window_queue, setProperties) {
  * @returns {Promise.<void>} 処理が完了したらresolveされるPromise
  */
 export function setPropertiesToWindowQueueItem(windowId, index, properties) {
-    console.log('setPropertiesToWindowQueueItem', windowId, index, properties)
+    // console.log('setPropertiesToWindowQueueItem', windowId, index, properties)
     const target_window_id = windowId;
     const target_index = index;
     const properties_to_set = properties;

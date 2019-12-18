@@ -44,7 +44,7 @@ function getConfigFromDOM() {
  * @param {Config} config 
  */
 function setConfigToDOM(config) {
-    console.log('setConfigToDOM', config);
+    // console.log('setConfigToDOM', config);
     // configManager.INIT_CONFIGから全てのプロパティを取得し、値のデータ型を判定する
     Object.keys(configManager.INIT_CONFIG).forEach(config_key => {
         const property_type = typeof configManager.INIT_CONFIG[config_key];
@@ -74,7 +74,7 @@ const query_string = window.location.search.slice(1); // 最初の?を抜くた�
  */
 const query_items = query_string.split('&');
 const query_map = new Map(query_items.map(item => item.split('=')));
-console.log(query_map);
+// console.log(query_map);
 
 
 /**
@@ -98,7 +98,7 @@ function getCurrentWindowId() {
         (query_map.get('target') === 'window') ?
             await getCurrentWindowId() :
             chrome.windows.WINDOW_ID_NONE;
-    console.log('config_target:', target_windowId);
+    // console.log('config_target:', target_windowId);
     if (target_windowId === chrome.windows.WINDOW_ID_NONE) {
         heading.innerHTML = '<strong>共有設定</strong>';
         configManager.onSharingConfigUpdated(changes => {
@@ -176,7 +176,7 @@ function getCurrentWindowId() {
     save_button.onclick = async () => {
         const config = getConfigFromDOM();
         await saveConfig(config);
-        console.log('saved config:', config);
+        // console.log('saved config:', config);
         updateMessage('保存しました');
     }
     // リセットボタン

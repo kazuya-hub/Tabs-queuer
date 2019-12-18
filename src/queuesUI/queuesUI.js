@@ -59,7 +59,7 @@ const window_queue_dropdown_menu_content_template =
  * @param {queuesManager.WindowQueue | queuesManager.SavedQueue} queue 
  */
 function generateQueueDOM(queue) {
-    console.log('generateQueueDOM', queue)
+    // console.log('generateQueueDOM', queue)
     const queue_DOM = queue_DOM_template.cloneNode(true);
     const lock_icon_DOM = queue_DOM.querySelector('.lock_icon');
     const queue_label_DOM = queue_DOM.querySelector('.queue-label');
@@ -387,13 +387,13 @@ document.addEventListener('click', event => {
      */
     const query_items = query_string.split('&');
     const query_map = new Map(query_items.map(item => item.split('=')));
-    console.log(query_map);
+    // console.log(query_map);
 
     function placeSavedQueuesList() {
         all_saved_queues_area.style.display = null;
         updateAllSavedQueuesList();
         queuesManager.onSavedQueuesAreaUpdated(changes => {
-            console.log('changes', changes)
+            // console.log('changes', changes)
             updateAllSavedQueuesList();
         });
     }
@@ -413,7 +413,7 @@ document.addEventListener('click', event => {
             if (windowId !== current_window_id) {
                 return;
             }
-            console.log('onWindowQueueUpdated', windowId, change)
+            // console.log('onWindowQueueUpdated', windowId, change)
             updateCurrentWindowQueueItemsList();
         });
         save_button.addEventListener('click', e => {
