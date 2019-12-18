@@ -49,6 +49,7 @@ export function requestTransaction(callback) {
                 outerResolve();
             }
             if (response.message === 'allow execution') {
+                /** @type {number} トランザクションのID */
                 const transaction_id = response.transaction_id;
 
                 /** 
@@ -74,7 +75,7 @@ export function requestTransaction(callback) {
                         innerResolve(result);
                     });
                 });
-                const returned_promise = callback();
+                const returned_promise = callback(transaction_id);
                 if ((returned_promise instanceof Promise) === false) {
                     postTerminationRequest();
                     return;
