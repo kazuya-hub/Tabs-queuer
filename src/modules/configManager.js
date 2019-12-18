@@ -6,7 +6,7 @@ sharing_config:
     共有設定　設定ページで変更できる chrome.storage.local APIで保管する
     いずれchrome.storage.syncに移したい chrome.storage.sync APIの制限が課題になる
 window_config:
-    ウィンドウごとの設定　ポップアップで変更できる chrome.storage.local APIで保管
+    ウィンドウごとの設定　ポップアップで変更できる chrome.storage.local APIで保管する
 
 設定のプロパティが欠けている場合は、次に優先度が高い設定の値を採用する
 設定の優先度は 初期設定 < 共有設定 < ウィンドウ設定
@@ -21,6 +21,8 @@ window_config:
 
 /**
  * @typedef {Object} Config コンフィグのプロパティ名とconfigUI.htmlに配置するinput要素のname属性の値を同じにする
+ * @property {number} [windowId] 設定を紐づけられたウィンドウのID ウィンドウの設定ならこのプロパティを持つ
+ * 
  * @property {boolean} [upper_limit_available] タブ数の上限(自動格納)が有効か否か
  * @property {boolean} [lower_limit_available] タブ数の下限(自動展開)が有効か否か
  * @property {boolean} [ignore_duplicates] タブをキューに追加する時、キュー内でURLが重複する追加を無視するか否か
@@ -72,14 +74,14 @@ export const CONFIG_TARGET = Object.freeze({
     /** chrome.storage.local API */
     LOCAL: {
         /** 共有設定 */
-        SHARING: 'sharing_config',
+        SHARING_CONFIG: 'sharing_config',
         /** ウィンドウ設定 */
         WINDOW_CONFIGS: 'window_configs'
     },
     /** chrome.storage.sync API */
     SYNC: {
         /** 共有設定 */
-        SHARING: 'sharing_config' // 共有設定はchrome.storage.sync APIで保管するようにする?
+        SHARING_CONFIG: 'sharing_config' // 共有設定はchrome.storage.sync APIで保管するようにする?
     }
 });
 
@@ -115,6 +117,47 @@ export function verifyConfig(config) {
     return warnings;
 }
 
+
+/**
+ * findPropertiesに与えられた条件 **全てに** 合致する **最初の** 設定をconfigsの中から見つけて、
+ *     configs内でのインデックスを返す
+ * - 見つからなかった場合は-1を返す
+ * @param {Array.<Config>} configs
+ * @param {Object} findProperties
+ *     @param {number} [findProperties.windowId]
+ * 
+ * @returns {number} index
+ */
+export function findIndexOfConfig(configs, findProperties) {
+    const array_of_config = configs;
+    const windowId = findProperties.windowId;
+    // テスト用関数の配列
+    const test_functions = [];
+    if (windowId !== undefined) {
+        test_functions.push(config => config.windowId === windowId);
+    }
+    // findIndex
+    const found_index = array_of_config.findIndex(queue => {
+        return test_functions.every(test => test(queue));
+    });
+    return found_index;
+}
+
+/**
+ * findPropertiesに与えられた条件 **全てに** 合致する **最初の** 設定をconfigsの中から見つけて返す
+ * - 見つからなかった場合はnullを返す
+ * @param {Array.<Config>} configs
+ * 
+ * @param {Object} findProperties
+ *     @param {number} [findProperties.windowId]
+ * 
+ * @returns {Config}
+ */
+export function findConfig(configs, findProperties) {
+    const found_index = findIndexOfConfig(configs, findProperties);
+    return configs[found_index] || null;
+}
+
 /**
  * ストレージから共有設定を取得する
  * @returns {Promise.<Config>}
@@ -122,9 +165,9 @@ export function verifyConfig(config) {
 export function loadSharingConfig() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get({
-            [CONFIG_TARGET.LOCAL.SHARING]: {}
+            [CONFIG_TARGET.LOCAL.SHARING_CONFIG]: {}
         }, result => {
-            const sharing_config = result[CONFIG_TARGET.LOCAL.SHARING];
+            const sharing_config = result[CONFIG_TARGET.LOCAL.SHARING_CONFIG];
             resolve(Object.assign(
                 {},
                 INIT_CONFIG,
@@ -145,15 +188,18 @@ export function loadWindowConfig(windowId) {
         const sharing_config = await loadSharingConfig();
         const window_configs = await new Promise((innerResolve, innerReject) => {
             chrome.storage.local.get({
-                [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: {}
+                [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: []
             }, result => {
                 innerResolve(result[CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]);
             });
         });
+        const window_config = findConfig(window_configs, {
+            windowId: windowId
+        });
         return outerResolve(Object.assign(
             {},
             sharing_config,
-            window_configs[windowId]
+            window_config
         ));
     });
 }
@@ -167,7 +213,7 @@ export function loadWindowConfig(windowId) {
 export function saveSharingConfig(config) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.set({
-            [CONFIG_TARGET.LOCAL.SHARING]: config
+            [CONFIG_TARGET.LOCAL.SHARING_CONFIG]: config
         }, () => {
             resolve();
         });
@@ -182,22 +228,33 @@ export function saveSharingConfig(config) {
  */
 export function saveWindowConfig(windowId, config) {
     return new Promise(async (outerResolve, outerReject) => {
-        const current_window_configs = await new Promise((innerResolve, innerReject) => {
+        /** @type {Array.<Config>} */
+        const window_configs = await new Promise((innerResolve, innerReject) => {
             chrome.storage.local.get({
-                [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: {}
+                [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: []
             }, result => {
                 innerResolve(result[CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]);
             });
         });
-        const newer_window_configs = Object.assign(
+        const old_window_config_index = findIndexOfConfig(window_configs, {
+            windowId: windowId
+        });
+        if (old_window_config_index !== -1) {
+            window_configs.splice(old_window_config_index, 1);
+        }
+
+        const window_config = Object.assign(
             {},
-            current_window_configs,
+            config,
             {
-                [windowId]: config
+                windowId: windowId
             }
         );
+        window_configs.push(
+            window_config
+        );
         chrome.storage.local.set({
-            [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: newer_window_configs
+            [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: window_configs
         }, () => {
             outerResolve();
         });
@@ -211,7 +268,7 @@ export function saveWindowConfig(windowId, config) {
 export function removeSharingConfig() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.set({
-            [CONFIG_TARGET.LOCAL.SHARING]: {}
+            [CONFIG_TARGET.LOCAL.SHARING_CONFIG]: {}
         }, () => {
             resolve();
         });
@@ -226,14 +283,22 @@ export function removeSharingConfig() {
  */
 export function removeWindowConfig(windowId) {
     return new Promise(async (outerResolve, outerReject) => {
+        /** @type {Array.<Config>} */
         const window_configs = await new Promise((innerResolve, innerReject) => {
             chrome.storage.local.get({
-                [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: {}
+                [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: []
             }, result => {
                 innerResolve(result[CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]);
             });
         });
-        delete window_configs[windowId];
+        const target_config_index = findIndexOfConfig(window_configs, {
+            windowId: windowId
+        });
+        if (target_config_index === -1) {
+            return outerResolve();
+        }
+
+        window_configs.splice(target_config_index, 1);
         chrome.storage.local.set({
             [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: window_configs
         }, () => {
@@ -250,7 +315,7 @@ export function removeWindowConfig(windowId) {
 export function clearWindowConfigs() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.set({
-            [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: {}
+            [CONFIG_TARGET.LOCAL.WINDOW_CONFIGS]: []
         }, () => {
             resolve();
         });
@@ -267,3 +332,4 @@ export function initConfig() {
         clearWindowConfigs()
     ]);
 }
+
