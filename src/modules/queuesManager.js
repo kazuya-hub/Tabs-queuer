@@ -857,19 +857,19 @@ export function sendAllWindowQueuesToSavedQueues(sendProperties) {
 }
 
 /**
- * @typedef {Object} WindowQueuesUpdate
+ * @typedef {Object} WindowQueuesAreaUpdate
  * @property {Array.<WindowQueue>} oldValue
  * @property {Array.<WindowQueue>} newValue
  */
 
 /**
- * @callback WidnowQueuesUpdateCallback
- * @param {WindowQueuesUpdate} changes
+ * @callback WidnowQueuesAreaUpdateCallback
+ * @param {WindowQueuesAreaUpdate} changes
  */
 
 /**
  * ストレージ上のウィンドウキューの領域が更新された時のイベント
- * @param {WidnowQueuesUpdateCallback} callback
+ * @param {WidnowQueuesAreaUpdateCallback} callback
  */
 export function onWindowQueuesAreaUpdated(callback) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -881,19 +881,19 @@ export function onWindowQueuesAreaUpdated(callback) {
 }
 
 /**
- * @typedef {Object} SavedQueuesUpdate
+ * @typedef {Object} SavedQueuesAreaUpdate
  * @property {Array.<SavedQueue>} oldValue
  * @property {Array.<SavedQueue>} newValue
  */
 
 /**
- * @callback SavedQueuesUpdateCallback
- * @param {SavedQueuesUpdate} changes
+ * @callback SavedQueuesAreaUpdateCallback
+ * @param {SavedQueuesAreaUpdate} changes
  */
 
 /**
  * ストレージ上の保存されたキューの領域が更新された時のイベント
- * @param {SavedQueuesUpdateCallback} callback 
+ * @param {SavedQueuesAreaUpdateCallback} callback 
  */
 export function onSavedQueuesAreaUpdated(callback) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
