@@ -871,7 +871,7 @@ export function sendAllWindowQueuesToSavedQueues(sendProperties) {
  * ストレージ上のウィンドウキューの領域が更新された時のイベント
  * @param {WidnowQueuesUpdateCallback} callback
  */
-export function onWindowQueuesUpdated(callback) {
+export function onWindowQueuesAreaUpdated(callback) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
         const window_queues_changes = changes[QUEUES_KEY_IN_STORAGE.WINDOW_QUEUES];
         if (window_queues_changes) {
@@ -895,7 +895,7 @@ export function onWindowQueuesUpdated(callback) {
  * ストレージ上の保存されたキューの領域が更新された時のイベント
  * @param {SavedQueuesUpdateCallback} callback 
  */
-export function onSavedQueuesUpdated(callback) {
+export function onSavedQueuesAreaUpdated(callback) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
         const save_queues_changes = changes[QUEUES_KEY_IN_STORAGE.SAVED_QUEUES];
         if (save_queues_changes) {
@@ -903,19 +903,6 @@ export function onSavedQueuesUpdated(callback) {
         }
     });
 }
-
-/**
- * @typedef {Object} WindowQueueUpdate
- * @property {WindowQueue} oldValue
- * @property {WindowQueue} newValue
- */
-
-/**
- * @callback WidnowQueueUpdateCallback
- * @param {number} windowId
- * @param {WindowQueueUpdate} change
- */
-
 
 function objectSort(object) {
     /**
@@ -941,11 +928,23 @@ function deepEqual(obj1, obj2) {
 }
 
 /**
- * ウィンドウキューのアイテム数が更新された時のイベント
+ * @typedef {Object} WindowQueueUpdate
+ * @property {WindowQueue} oldValue
+ * @property {WindowQueue} newValue
+ */
+
+/**
+ * @callback WidnowQueueUpdateCallback
+ * @param {number} windowId
+ * @param {WindowQueueUpdate} change
+ */
+
+/**
+ * ウィンドウのキューが更新された時のイベント
  * @param {WidnowQueueUpdateCallback} callback 
  */
 export function onWindowQueueUpdated(callback) {
-    onWindowQueuesUpdated(changes => {
+    onWindowQueuesAreaUpdated(changes => {
         const oldValue = changes.oldValue || new Array();
         const newValue = changes.newValue || new Array();
         const oldValue_windowId_list = oldValue.map(queue => queue.windowId);
@@ -974,6 +973,58 @@ export function onWindowQueueUpdated(callback) {
                 callback(windowId, {
                     oldValue: older_window_queue,
                     newValue: newer_window_queue
+                });
+            }
+        });
+    });
+}
+
+/**
+ * @typedef {Object} SavedQueueUpdate
+ * @property {SavedQueue} oldValue
+ * @property {SavedQueue} newValue
+ */
+
+/**
+ * @callback SavedQueueUpdateCallback
+ * @param {string} key
+ * @param {SavedQueueUpdate} change
+ */
+
+/**
+ * 保存されたキューが更新された時のイベント
+ * @param {SavedQueueUpdateCallback} callback 
+ */
+export function onSavedQueueUpdated(callback) {
+    onSavedQueuesAreaUpdated(changes => {
+        const oldValue = changes.oldValue || new Array();
+        const newValue = changes.newValue || new Array();
+        const oldValue_key_list = oldValue.map(queue => queue.key);
+        const newValue_key_list = newValue.map(queue => queue.key);
+        /**
+         * oldValueかnewValueのどちらかに存在した全ての保存されたキューのキーのセット
+         * @type {Set.<string>}
+         */
+        const all_key_list = new Set(
+            oldValue_key_list.concat(newValue_key_list)
+        );
+        all_key_list.forEach(key => {
+            const found_older = findQueue(oldValue, {
+                key: key
+            });
+            const found_newer = findQueue(newValue, {
+                key: key
+            });
+            const older_saved_queue =
+                found_older ||
+                buildSavedQueue({ key: key });
+            const newer_saved_queue =
+                found_newer ||
+                buildSavedQueue({ key: key });
+            if (deepEqual(older_saved_queue, newer_saved_queue) === false) {
+                callback(key, {
+                    oldValue: older_saved_queue,
+                    newValue: newer_saved_queue
                 });
             }
         });

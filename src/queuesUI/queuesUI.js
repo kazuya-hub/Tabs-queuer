@@ -25,6 +25,8 @@ function queueItemsCountFormat(number) {
 }
 
 
+const queue_font_size_style = document.getElementById('queue-font-size-style');
+
 const all_saved_queues_area = document.getElementById('all-saved-queues-area');
 const all_window_queues_area = document.getElementById('all-window-queues-area');
 const current_window_queue_area = document.getElementById('current-window-queue-area');
@@ -170,6 +172,14 @@ document.addEventListener('click', event => {
 
     const current_tab = current_window.tabs.find(tab => tab.active);
     const current_tab_id = current_tab.id;
+
+    const current_window_config = await configManager.loadWindowConfig(current_window_id);
+    const queue_font_size = current_window_config.queue_style_font_size;
+    queue_font_size_style.innerHTML = `
+    .queue,
+    .queue-item {
+        font-size: ${queue_font_size};
+    }`;
 
     function updateAllSavedQueuesList() {
         return queuesManager.requestTransaction(() => {
@@ -373,7 +383,7 @@ document.addEventListener('click', event => {
     function placeSavedQueuesList() {
         all_saved_queues_area.style.display = null;
         updateAllSavedQueuesList();
-        queuesManager.onSavedQueuesUpdated(changes => {
+        queuesManager.onSavedQueuesAreaUpdated(changes => {
             console.log('changes', changes)
             updateAllSavedQueuesList();
         });
@@ -382,7 +392,7 @@ document.addEventListener('click', event => {
     function placeWindowQueuesList() {
         all_window_queues_area.style.display = null;
         updateAllWindowQueuesList();
-        queuesManager.onWindowQueuesUpdated(changes => {
+        queuesManager.onWindowQueuesAreaUpdated(changes => {
             updateAllWindowQueuesList();
         });
     }

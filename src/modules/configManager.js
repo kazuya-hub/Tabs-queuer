@@ -44,6 +44,7 @@ window_config:
  *     - 'unset': position_to_dequeueと同じ
  *     - 'rightmost': 一番右
  *     - 'rightnext': アクティブなタブの右隣
+ * @property {string} [queue_style_font_size] キューのスタイルのfont-sizeプロパティに設定する値
  */
 
 /**
@@ -62,7 +63,8 @@ export const INIT_CONFIG = Object.freeze({
     target_tab_to_auto_store: 'rightmost',
     position_to_enqueue: 'last',
     position_to_dequeue: 'rightnext',
-    position_to_auto_restore: 'rightmost'
+    position_to_auto_restore: 'rightmost',
+    queue_style_font_size: '12px'
 });
 
 /** chrome.storage API内でコンフィグを保存する為に使うキー */
