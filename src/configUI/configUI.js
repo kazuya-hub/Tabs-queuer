@@ -101,11 +101,20 @@ function getCurrentWindowId() {
     console.log('config_target:', target_windowId);
     if (target_windowId === chrome.windows.WINDOW_ID_NONE) {
         heading.innerHTML = '<strong>共有設定</strong>';
+        configManager.onSharingConfigUpdated(changes => {
+            location.reload();
+        });
     } else {
         heading.innerHTML = `<strong>このウィンドウ(ID:${target_windowId})</strong>の設定`;
+        configManager.onWindowConfigUpdated((windowId, change) => {
+            if (target_windowId === windowId) {
+                location.reload();
+            }
+        });
         link_to_sharing_config.onclick = () => {
             chrome.runtime.openOptionsPage();
         };
+        
         const options_page = chrome.runtime.getManifest().options_page;
         link_to_sharing_config.href = chrome.runtime.getURL(options_page);
         link_to_sharing_config.classList.add('showing');
@@ -169,13 +178,11 @@ function getCurrentWindowId() {
         await saveConfig(config);
         console.log('saved config:', config);
         updateMessage('保存しました');
-        save_button.disabled = true;
     }
     // リセットボタン
     reset_button.onclick = async () => {
         if (confirm('本当にリセットしますか?')) {
             await removeConfig();
-            location.reload();
         }
     }
 })();
