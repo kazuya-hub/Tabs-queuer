@@ -180,6 +180,15 @@ document.addEventListener('click', event => {
     .queue-item {
         font-size: ${queue_font_size};
     }`;
+    configManager.onWindowConfigUpdated((windowId, change) => {
+        if (windowId !== current_window_id) {
+            return;
+        }
+
+        if (change.newValue.queue_style_font_size !== queue_font_size) {
+            location.reload();
+        }
+    });
 
     function updateAllSavedQueuesList() {
         return queuesManager.requestTransaction(() => {
