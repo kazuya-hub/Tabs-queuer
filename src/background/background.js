@@ -309,13 +309,21 @@ function automaticTabStore(windowId) {
                 return outerResolve();
             }
 
+            /**
+             * @type {Object | undefined} ウィンドウを表現するオブジェクト 取得に失敗した場合はundefined
+             */
             const target_window = await new Promise((innerResolve, innerReject) => {
-                chrome.windows.get(windowId, {
+                chrome.windows.getAll({
                     populate: true
-                }, result => {
-                    innerResolve(result);
+                }, all_windows => {
+                    const target_window = all_windows.find(window => window.id === windowId);
+                    innerResolve(target_window);
                 });
             });
+            if (target_window === undefined) {
+                return outerResolve();
+            }
+
             const number_of_tabs = target_window.tabs.length;
             if (number_of_tabs <= upper_limit_value) {
                 return outerResolve();
