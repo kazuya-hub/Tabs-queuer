@@ -1,8 +1,9 @@
 
 # Tabs queuer
 
-- Chromeの拡張機能です [chrome ウェブストアにて公開中](https://chrome.google.com/webstore/detail/tabs-queuer/kdngiphleonkipokblamemlkdhgfagjc)
+- Chromeの拡張機能です
 - [既存の拡張機能](https://chrome.google.com/webstore/detail/tabs-limiter-with-queue/kaamkonbephafcojgajnbgbdgbgbboap)のパクリ
+- [chrome ウェブストアにて公開中](https://chrome.google.com/webstore/detail/tabs-queuer/kdngiphleonkipokblamemlkdhgfagjc)
 
 ## ディレクトリ
 
