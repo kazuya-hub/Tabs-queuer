@@ -422,10 +422,41 @@ document.addEventListener('click', event => {
         });
         restore_multiple_items_button.addEventListener('click', e => {
             queuesManager.requestTransaction(transactionId => {
-                return new Promise((outerResolve, outerReject) => {
+                return new Promise(async (outerResolve, outerReject) => {
+                    /*
+                    指定された個数のアイテムをキューから取り出す
+                    ただし、ロックされたアイテムは対象にしない
+                    */
+                    const target_window_queue = await queuesManager.getWindowQueue(current_window_id);
                     const number_of_restore_items =
                         Number(number_of_items_to_multiple_restore.value) || 0;
+
+                    const window_config =
+                        await configManager.loadWindowConfig(current_window_id);
+                    const position_to_dequeue = window_config.position_to_dequeue;
+
+                    const array_of_index_to_restore = [];
+                    for (let i = 0; i < target_window_queue.items.length; i++) {
+                        const queue_item = target_window_queue.items[i];
+                        if (queue_item.locked === true) {
+                            continue;
+                        }
+                        array_of_index_to_restore.push(i);
+                        if (array_of_index_to_restore.length >= number_of_restore_items) {
+                            break; // 要求された個数に届いた時点でbreak
+                        }
+                    }
                     console.log(number_of_restore_items);
+                    console.log(array_of_index_to_restore)
+
+                    await queuesManager.dequeueFromWindowQueue(current_window_id, {
+                        index: array_of_index_to_restore,
+                        active: false,
+                        delete: true,
+                        position: position_to_dequeue,
+                        openerTabId: current_tab_id
+                    });
+
                     return outerResolve();
                 });
             });
