@@ -14,12 +14,20 @@ import * as configManager from '../modules/configManager.js';
 
 
 /**
+ * トランサクションのIDを引数に受け取り、Promiseを返すコールバック関数
+ * 返すPromiseは処理が終了した時にresolveされる必要がある
+ * @callback TransactionCallback
+ * @param {number} transaction_id
+ * @returns {Promise}
+ */
+
+/**
  * キュー(とタブ)に関する処理のトランザクションを登録する
  * - background/queuesTransactionManager/queuesTransactionManager.jsと通信する
  * - 登録されたトランザクション同士が同時に実行されることはない
  * - 登録されたトランザクションは登録された順番通りに実行される
  * - 処理に時間がかかりすぎた場合はタイムアウトし、次のトランザクションが実行される  
- * @param {function} callback Promiseを返すコールバック関数
+ * @param {TransactionCallback} callback Promiseを返すコールバック関数
  *   - 返されたPromiseは、一連の処理が終了した時に解決される必要がある
  *   - 返されたPromiseが解決されるまで、他の登録されたトランザクションは実行されない
  *   - 返されたPromiseがrejectされた場合は、  
