@@ -36,6 +36,10 @@ const window_queues_list_container = document.getElementById('window-queues-list
 const current_window_queue_items_list_container = document.getElementById('current-window-queue-items-list-container');
 
 
+/** @type {HTMLInputElement} input[type="number"] */
+const number_of_items_to_multiple_restore = document.getElementById('number-of-items-to-multiple-restore');
+/** @type {HTMLButtonElement} */
+const restore_multiple_items_button = document.getElementById('restore-multiple-items-button');
 const save_button = document.getElementById('save-button');
 const clear_button = document.getElementById('clear-button');
 const link_to_window_queues_list = document.getElementById('link-to-window-queues-list');
@@ -342,10 +346,10 @@ document.addEventListener('click', event => {
                     });
                     page_info_DOM.setAttribute('title', window_queue_item.url || '');
                     page_info_DOM.addEventListener('click', e => {
-                        const delete_item_after_dequeue =
-                            window_queue_item.locked ? false : true
                         queuesManager.requestTransaction(() => {
                             return new Promise(async (resolve, reject) => {
+                                const delete_item_after_dequeue =
+                                    window_queue_item.locked ? false : true;
                                 const window_config =
                                     await configManager.loadWindowConfig(current_window_id);
                                 const position_to_dequeue = window_config.position_to_dequeue;
@@ -415,6 +419,16 @@ document.addEventListener('click', event => {
             }
             // console.log('onWindowQueueUpdated', windowId, change)
             updateCurrentWindowQueueItemsList();
+        });
+        restore_multiple_items_button.addEventListener('click', e => {
+            queuesManager.requestTransaction(transactionId => {
+                return new Promise((outerResolve, outerReject) => {
+                    const number_of_restore_items =
+                        Number(number_of_items_to_multiple_restore.value) || 0;
+                    console.log(number_of_restore_items);
+                    return outerResolve();
+                });
+            });
         });
         save_button.addEventListener('click', e => {
             queuesManager.requestTransaction(() => {
