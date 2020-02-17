@@ -498,20 +498,37 @@ export function pushItemsToWindowQueue(windowId, items, pushProperties) {
  * 指定したWindowQueueの指定したindexにあるアイテムを削除して詰める
  * - 削除した結果キューにアイテムが無くなったらキューを削除する
  * @param {number} windowId
- * @param {number} index
+ * @param {number | Array.<number>} index 削除するアイテムのインデックスまたはインデックスの配列
  * 
  * @returns {Promise.<Void>} 処理が終了した時にresolveされるpromise
  */
 export function removeItemFromWindowQueue(windowId, index) {
     const target_windowId = windowId;
-    const target_index = index;
+    const array_of_target_items_index =
+        (() => {
+            if (typeof index === 'number') {
+                return [
+                    index
+                ];
+            }
+            if (index instanceof Array) {
+                return index;
+            }
+        })();
+
     return new Promise(async (resolve, reject) => {
         const target_window_queue = await getWindowQueue(target_windowId);
-        target_window_queue.items.splice(target_index, 1);
-        if (target_window_queue.items.length === 0) {
+        const newer_window_queue_items =
+            target_window_queue.items.filter((queue_item, index) => {
+                return (array_of_target_items_index.includes(index) === false);
+            });
+        if (newer_window_queue_items.length === 0) {
             await removeWindowQueue(target_window_queue.windowId);
         } else {
-            await setWindowQueue(target_window_queue);
+            await setWindowQueue({
+                windowId: target_window_queue.windowId,
+                items: newer_window_queue_items
+            });
         }
         return resolve();
     });
@@ -521,7 +538,8 @@ export function removeItemFromWindowQueue(windowId, index) {
  * ウィンドウキューからページを取り出してタブを作る
  * @param {number} windowId
  * @param {Object} [dequeueProperties] 
- *     @param {number} [dequeueProperties.index] 取り出すアイテムのキュー内でのインデックス　デフォルトは0
+ *     @param {number | Array.<number>} [dequeueProperties.index]  
+ *                        取り出すアイテムのキュー内でのインデックスまたはインデックスの配列 デフォルトは0
  *     @param {boolean} [dequeueProperties.active] 作ったタブをアクティブにするか否か　デフォルトはfalse
  *     @param {boolean} [dequeueProperties.delete] trueならタブを作った後にキューからアイテムを削除する　デフォルトはtrue
  *     @param {string} [dequeueProperties.position] 取り出したタブを配置する位置 デフォルトは'rightmost'
@@ -541,11 +559,23 @@ export function dequeueFromWindowQueue(windowId, dequeueProperties) {
         openerTabId: undefined
     };
     const complete_properties = Object.assign({}, default_properties, dequeueProperties);
-    const target_item_index_in_queue = complete_properties.index;
+    /** @type {Array.<number>} */
+    const array_of_target_items_index =
+        (() => {
+            if (typeof complete_properties.index === 'number') {
+                return [
+                    complete_properties.index
+                ];
+            }
+            if (complete_properties.index instanceof Array) {
+                return complete_properties.index;
+            }
+        })();
     const active = complete_properties.active;
     const delete_queue_item = complete_properties.delete;
     const position_to_dequeue = complete_properties.position;
     const opener_tab_id = complete_properties.openerTabId;
+
     return new Promise(async (outerResolve, outerReject) => {
         const target_window = await new Promise((innerResolve, innerReject) => {
             chrome.windows.get(target_windowId, {
@@ -554,27 +584,29 @@ export function dequeueFromWindowQueue(windowId, dequeueProperties) {
                 innerResolve(result);
             });
         });
-        const tab_index_in_window = (() => {
-            if (position_to_dequeue === 'rightmost') {
+        /** @type {number} ウィンドウ内でタブを作成する位置 */
+        const tab_index_in_window =
+            (() => {
+                if (position_to_dequeue === 'rightmost') {
+                    return target_window.tabs.length;
+                }
+                if (position_to_dequeue === 'rightnext') {
+                    const active_tab_index =
+                        target_window.tabs.findIndex(tab => tab.active === true);
+                    return (Number(active_tab_index) + 1) || 0;
+                }
+                // position_to_dequeueが、どのキーワードにも当てはまらなかった場合
                 return target_window.tabs.length;
-            }
-            if (position_to_dequeue === 'rightnext') {
-                const active_tab_index =
-                    target_window.tabs.findIndex(tab => tab.active === true);
-                return active_tab_index + 1;
-            }
-            // position_to_dequeueが、どのキーワードにも当てはまらなかった場合
-            return target_window.tabs.length;
-        })();
+            })();
 
         const target_window_queue = await getWindowQueue(target_windowId);
         if (target_window_queue === null) {
             return outerReject(new Error('指定されたウィンドウキューが存在しません'));
         }
-        const target_queue_item = target_window_queue.items[target_item_index_in_queue];
-        if (target_queue_item === undefined) {
-            return outerReject(new Error('指定されたアイテムが存在しません'));
-        }
+        const target_queue_items =
+            array_of_target_items_index.map(index => {
+                return target_window_queue.items[index];
+            });
 
         /**
          * タブを作った後のアニメーションが終わるのを待つ  
@@ -588,6 +620,7 @@ export function dequeueFromWindowQueue(windowId, dequeueProperties) {
                 }, 200);
             });
         }
+
         /*
         キューからタブを取り出す手順
             1. 非アクティブなタブを作り、ページをロードする
@@ -599,26 +632,36 @@ export function dequeueFromWindowQueue(windowId, dequeueProperties) {
             2. タブをアクティブな状態で作るより、非アクティブな状態で作って後からアクティブにした方が、  
                タブがアニメーションされるのでタブが作成されたことがユーザーにわかりやすい
          */
-        const created_tab = await new Promise((innerResolve, innerReject) => {
-            chrome.tabs.create({
-                windowId: target_windowId,
-                index: tab_index_in_window,
-                url: target_queue_item.url || '',
-                active: false,
-                openerTabId: opener_tab_id
-            }, result => {
-                innerResolve(result);
-            });
-        });
+
+        const created_tabs =
+            await Promise.all(
+                target_queue_items.map((queue_item, index_in_targets) => {
+                    return new Promise((innerResolve, innerReject) => {
+                        chrome.tabs.create({
+                            windowId: target_windowId,
+                            index: tab_index_in_window + index_in_targets,
+                            url: queue_item.url || '',
+                            active: false,
+                            openerTabId: opener_tab_id
+                        }, result => {
+                            innerResolve(result);
+                        });
+                    });
+                })
+            );
         const promises = [
             waitForCreatedTabAnimation()
         ];
         if (delete_queue_item === true) {
-            const promise = removeItemFromWindowQueue(target_windowId, target_item_index_in_queue);
+            const promise = removeItemFromWindowQueue(target_windowId, array_of_target_items_index);
             promises.push(promise);
         }
         await Promise.all(promises);
-        chrome.tabs.update(created_tab.id, {
+
+        if (created_tabs.length === 0) {
+            return outerResolve();
+        }
+        chrome.tabs.update(created_tabs[0].id, {
             active: active
         }, tab => {
             return outerResolve();
