@@ -300,11 +300,14 @@ function automaticTabStore(windowId) {
         // console.log('automaticTabStore', windowId);
         return new Promise(async (outerResolve, outerReject) => {
             const window_config = await configManager.loadWindowConfig(windowId);
-            const upper_limit_available = window_config.upper_limit_available;
-            const upper_limit_value = window_config.upper_limit_value;
-            const target_tab_to_auto_store = window_config.target_tab_to_auto_store;
-            const ignore_loading_tabs = window_config.ignore_loading_tabs;
-            const ignore_active_tabs = window_config.ignore_active_tabs;
+            const {
+                upper_limit_available,
+                upper_limit_value,
+                target_tab_to_auto_store,
+                ignore_loading_tabs,
+                ignore_active_tabs
+            } = window_config;
+
             if (upper_limit_available === false) {
                 return outerResolve();
             }
@@ -351,6 +354,13 @@ function automaticTabStore(windowId) {
                     }
                     if ((ignore_active_tabs === true) && (tab.active === true)) {
                         return innerResolve();
+                    }
+
+                    if (
+                        ((typeof tab.url) !== 'string') ||
+                        (tab.url === '')
+                    ) {
+                        return innerResolve(); // タブのURLが取得できない場合は無視する
                     }
 
                     await sendTabToWindowQueue(tab, {
