@@ -84,10 +84,6 @@ body[data-content="popup"] #current-window-queue-items-list-container {
     -webkit-user-select: none;
     -moz-user-select: none;
 }
-.queue:hover,
-.queue-item:hover {
-    background-color: rgb(255, 255, 200);
-}
 
 .only-with-saved-queue {
     display: none;

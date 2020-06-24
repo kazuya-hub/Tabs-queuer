@@ -1,10 +1,10 @@
 'use strict';
 import * as queuesManager from "../modules/queuesManager.js";
 import * as configManager from "../modules/configManager.js";
-console.log('queuesManager.js', queuesManager);
+import Sortable from '../lib/sortable.complete.esm.js';
 
 /**
- * ファビコンが存在しない場合、代わりに表示する画像
+ * ファビコンが存在しない場合、代わりに表示する画像の相対パス
  */
 const FAVICON_SRC_NOT_EXIST = './icons/favicon_not_exist.png';
 
@@ -12,6 +12,10 @@ const FAVICON_SRC_NOT_EXIST = './icons/favicon_not_exist.png';
  * キューのアイテム数の表示の上限
  */
 const ITEMS_COUNT_DISPLAY_UPPER_LIMIT = 999;
+
+const GROUP_NAME_FOR_SORTABLE = Object.freeze({
+    CURRENT_WINDOW_QUEUE: 'current-window-queue'
+});
 
 /**
  * @param {number} number 
@@ -34,6 +38,19 @@ const current_window_queue_area = document.getElementById('current-window-queue-
 const saved_queues_list_container = document.getElementById('saved-queues-list-container');
 const window_queues_list_container = document.getElementById('window-queues-list-container');
 const current_window_queue_items_list_container = document.getElementById('current-window-queue-items-list-container');
+
+
+const current_window_queue_Sortable = Sortable.create(current_window_queue_items_list_container, {
+    group: GROUP_NAME_FOR_SORTABLE.CURRENT_WINDOW_QUEUE,
+    animation: 100,
+    // swapThreshold: 0.2,
+    multiDrag: true,
+    selectedClass: 'sortable-selected',
+    filter: '.has-mouse-event.icon',
+    onEnd: function (event) {
+        console.log('onEnd', event);
+    }
+});
 
 
 /** @type {HTMLInputElement} input[type="number"] */
