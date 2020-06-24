@@ -75,6 +75,7 @@ body[data-content="popup"] #current-window-queue-items-list-container {
 
 .queue,
 .queue-item {
+    background-color: white;
     box-sizing: border-box;
     border: outset 1px;
     padding-left: 8px;
