@@ -669,6 +669,37 @@ export function dequeueFromWindowQueue(windowId, dequeueProperties) {
     });
 }
 
+/**
+ * ウィンドウキューのアイテムを並べ替える
+ * @param {number} windowId 対象となるウィンドウのID
+ * @param {Array.<number>} indexes 移動させるアイテムのインデックスの配列
+ * @param {number} destination_index 移動先のインデックス
+ * 
+ * @returns {Promise.<void>} 処理が終了した時にresolveされるpromise 
+ */
+export function moveItemsInWindowQueue(windowId, indexes, destination_index) {
+    indexes.sort((a, b) => a - b); // 昇順にソート
+    return new Promise(async (outerResolve, outerReject) => {
+        const target_window_queue = await getWindowQueue(windowId);
+        const current_queue_items = target_window_queue.items;
+
+        const target_items = [];
+        const newer_queue_items = [];
+        current_queue_items.forEach((item, index) => {
+            if (indexes.includes(index)) {
+                target_items.push(item);
+            } else {
+                newer_queue_items.push(item);
+            }
+        });
+        newer_queue_items.splice(destination_index, 0, ...target_items);
+
+        target_window_queue.items = newer_queue_items;
+        await setWindowQueue(target_window_queue);
+        return outerResolve();
+    });
+}
+
 
 
 /**

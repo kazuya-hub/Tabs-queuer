@@ -40,19 +40,6 @@ const window_queues_list_container = document.getElementById('window-queues-list
 const current_window_queue_items_list_container = document.getElementById('current-window-queue-items-list-container');
 
 
-const current_window_queue_Sortable = Sortable.create(current_window_queue_items_list_container, {
-    group: GROUP_NAME_FOR_SORTABLE.CURRENT_WINDOW_QUEUE,
-    animation: 100,
-    // swapThreshold: 0.2,
-    multiDrag: true,
-    selectedClass: 'sortable-selected',
-    filter: '.has-mouse-event.icon',
-    onEnd: function (event) {
-        console.log('onEnd', event);
-    }
-});
-
-
 /** @type {HTMLInputElement} input[type="number"] */
 const number_of_items_to_multiple_restore = document.getElementById('number-of-items-to-multiple-restore');
 /** @type {HTMLButtonElement} */
@@ -211,6 +198,52 @@ document.addEventListener('click', event => {
         }
     });
 
+
+    const current_window_queue_Sortable = Sortable.create(current_window_queue_items_list_container, {
+        group: GROUP_NAME_FOR_SORTABLE.CURRENT_WINDOW_QUEUE,
+        animation: 100,
+        multiDrag: true,
+        selectedClass: 'sortable-selected',
+        filter: '.has-mouse-event.icon',
+        onEnd: function (event) {
+            // console.log('onEnd', event);
+
+            /**
+             * 移動されたアイテムのインデックスのarray
+             * @type {Array.<number>}
+             */
+            const target_item_indexes = (() => {
+                if (event.oldIndicies.length > 0) {
+                    return event.oldIndicies.map(obj => obj.index);
+                } else {
+                    return [event.oldIndex];
+                }
+            })();
+
+            /**
+             * アイテムの移動先のインデックス　複数移動された場合は一番インデックスが小さいアイテムを指す
+             * @type {number}
+             */
+            const destination_index = (() => {
+                if (event.newIndicies.length > 0) {
+                    return Math.min(
+                        ...event.newIndicies.map(obj => obj.index)
+                    );
+                } else {
+                    return event.newIndex;
+                }
+            })();
+
+            queuesManager.requestTransaction(() => {
+                return new Promise(async (resolve, reject) => {
+                    await queuesManager.moveItemsInWindowQueue(
+                        current_window_id, target_item_indexes, destination_index);
+                    return resolve();
+                });
+            });
+        }
+    });
+
     function updateAllSavedQueuesList() {
         return queuesManager.requestTransaction(() => {
             return queuesManager.getAllSavedQueues().then(all_saved_queues => {
@@ -362,7 +395,7 @@ document.addEventListener('click', event => {
                         });
                     });
                     page_info_DOM.setAttribute('title', window_queue_item.url || '');
-                    page_info_DOM.addEventListener('click', e => {
+                    page_info_DOM.addEventListener('dblclick', e => {
                         queuesManager.requestTransaction(() => {
                             return new Promise(async (resolve, reject) => {
                                 const delete_item_after_dequeue =
