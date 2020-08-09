@@ -120,7 +120,11 @@ function generateQueueItemDOM(queue_item) {
     if (queue_item.locked === true) {
         lock_icon_DOM.classList.add('locked');
     }
-    favicon_DOM.src = queue_item.favIconUrl || FAVICON_SRC_NOT_EXIST;
+    if (queue_item.favIconUrl.startsWith('file://') === true) {
+        favicon_DOM.src = FAVICON_SRC_NOT_EXIST;
+    } else {
+        favicon_DOM.src = queue_item.favIconUrl || FAVICON_SRC_NOT_EXIST;
+    }
     title_DOM.innerText = queue_item.title || queue_item.url;
     return queue_item_DOM;
 }
