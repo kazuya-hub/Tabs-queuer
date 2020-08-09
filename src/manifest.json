@@ -3,7 +3,7 @@
 
     "name": "Tabs queuer",
     "description": "Tabs queuer",
-    "version": "1.0.3",
+    "version": "1.0.4",
 
     "permissions": [
         "tabs",
