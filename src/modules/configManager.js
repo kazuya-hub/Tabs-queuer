@@ -53,8 +53,8 @@ window_config:
  * @type {Config} 初期設定 読み取り専用
  */
 export const INIT_CONFIG = Object.freeze({
-    upper_limit_available: true,
-    lower_limit_available: true,
+    upper_limit_available: false,
+    lower_limit_available: false,
     ignore_duplicates: true,
     tab_closing_after_send: true,
     wait_for_tab_loading: true,
