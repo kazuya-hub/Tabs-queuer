@@ -13,8 +13,18 @@ const FAVICON_SRC_NOT_EXIST = './icons/favicon_not_exist.png';
  */
 const ITEMS_COUNT_DISPLAY_UPPER_LIMIT = 999;
 
-const GROUP_NAME_FOR_SORTABLE = Object.freeze({
+/**
+ * Sortable.jsのグループ名に使う文字列の辞書
+ */
+const GROUP_NAME_FOR_SORTABLEJS = Object.freeze({
     CURRENT_WINDOW_QUEUE: 'current-window-queue'
+});
+
+/**
+ * Sortable.js用のクラス名
+ */
+const CLASSNAME_FOR_SORTABLEJS = Object.freeze({
+    SELECTED: 'sortable-selected'
 });
 
 /**
@@ -200,10 +210,10 @@ document.addEventListener('click', event => {
 
 
     const current_window_queue_Sortable = Sortable.create(current_window_queue_items_list_container, {
-        group: GROUP_NAME_FOR_SORTABLE.CURRENT_WINDOW_QUEUE,
+        group: GROUP_NAME_FOR_SORTABLEJS.CURRENT_WINDOW_QUEUE,
         animation: 100,
         multiDrag: true,
-        selectedClass: 'sortable-selected',
+        selectedClass: CLASSNAME_FOR_SORTABLEJS.SELECTED,
         filter: '.has-mouse-event.icon',
         onEnd: function (event) {
             // console.log('onEnd', event);
@@ -512,11 +522,17 @@ document.addEventListener('click', event => {
             });
         });
         save_button.addEventListener('click', e => {
+            // ボタンをクリックした時点でSortable.jsの選択は解除されてしまうため、この方法で取得することはできない
+            // const selected_items =
+            //     window_queues_list_container.querySelectorAll(`.${CLASSNAME_FOR_SORTABLEJS.SELECTED}`);
             queuesManager.requestTransaction(() => {
                 return queuesManager.sendWindowQueueToSavedQueues(current_window_id);
             });
         });
         clear_button.addEventListener('click', e => {
+            // ボタンをクリックした時点でSortable.jsの選択は解除されてしまうため、この方法で取得することはできない
+            // const selected_items =
+            //     window_queues_list_container.querySelectorAll(`.${CLASSNAME_FOR_SORTABLEJS.SELECTED}`);
             if (window.confirm('キューを削除します') === false) {
                 return;
             }
